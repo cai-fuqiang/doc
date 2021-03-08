@@ -1,0 +1,37 @@
+1. mem_cgroup的层级
+1) 如果不启用hierarchy，即mem_cgroup->use_hierarchy =false，
+   则所有的memcg之间都是互相独立，互不影响的，即使是父子cgroup之间，
+   也跟两个单独创建的cgroup一样。
+
+2) 如果启用hierarchy，即mem_cgroup->use_hierarchy =true，则memcg
+   的统计需要考虑hierarchy中的层级关系，其影响因素主要有：
+   a) Charge/uncharge
+   如果子cgroup中charge/uncharge了一个page，则其父cgroup
+   和所有祖先cgroup都要charge/uncharge该page。
+   b) Reclaim
+   因为父cgroup的统计中包含了所有子cgroup中charge的page，所以在回
+   收父cgroup中使用的内存时，也可以回收子cgroup中进程使用的内存。
+   c) Oom
+   因为父cgroup的统计中包含了所有子cgroup中charge的page，所以如果父
+   cgroup需要出发oom，则oom可以考虑杀死子cgroup中的进程，达到释放内
+   存的效果。
+
+
+2. 
+
+
+
+
+E) 主要接口
+1）charge接口
+    a) mem_cgroup_commit_charge
+    b) mem_cgroup_try_charge_delay
+        do_anonymous_page- >mem_cgroup_try_charge_delay()
+    3) mem_cgroup_cancel_charge
+2) uncharge接口
+    a) mem_cgroup_uncharge
+    b) mem_cgroup_uncharge_list
+
+    __memcg_kmem_charge
+    memcg_kmem_charge 
+    用于kernel charge内存

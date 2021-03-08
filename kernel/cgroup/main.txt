@@ -1,0 +1,19 @@
+cgroup 初始化：
+|--start_kernel()
+    |--cgroup_init()
+        |--cgroup_init_cftypes(NULL, cgroup_base_files);        //初始化cgroup自己的cftypes,主要是设置 
+                                                                        //cftype中的cgroup_subsys和kf_ops，
+                                                                        //但是cgroup_subsys为 空
+        |--cgroup_init_cftypes(NULL, cgroup1_base_files));
+        |--cgroup_rstat_boot();     //初始化和cgroup_rstat_cpu相关信息
+        |--cgroup_setup_root()
+            |--kernfs_create_root()
+        |--for_each_subsys()        //循环遍历init_css_set
+            |--
+
+
+
+
+
+需要关注的点:
+struct cgroup_rstat_cpu

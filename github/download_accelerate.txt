@@ -1,0 +1,17 @@
+设置hosts
+
+1. 登录http://tool.chinaz.com/dns/
+
+2. 查询以下域名映射,并分别取访问速度较快的一个ip
+
+github.global.ssl.fastly.net   ->   151.101.229.194
+
+assets-cdn.github.com        ->   151.101.229.194
+
+3. 将查询到的ip和域名设置到host中
+
+sudo vim /etc/hosts
+ 在hosts中加入查询结果
+
+ 151.101.229.194 github.global.ssl.fastly.net
+ 151.101.229.194 assets-cdn.github.com

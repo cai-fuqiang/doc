@@ -1,0 +1,99 @@
+blk_mq_make_request     参考链接:https://www.sohu.com/a/193179172_505795
+
+1. 首次引入blk-mq plug的commit
+    f984df1f0f71
+    blk-mq: make plug work for mutiple disks and queues
+
+2.增加单队列逻辑
+    254d259da0c3
+    blk-mq: merge mq and sq make_request instances
+
+3. 增加commit_rqs这个成员回调函数
+    d666ba98f849
+    blk-mq: add mq_ops->commit_rqs()
+	/* 
+	 * 这个其实是一个容错机制，正常来说bd->last==true，代表这个request是最后一个
+	 * request这样的话，驱动就可以去敲门铃，而不是每个request都去敲一下，但是如果
+	 * 跑进了一个错误的流程，这时候，就需要另一种机制来告诉驱动这是该去敲门零了，
+	 */
+	blk-mq passes information to the hardware about any given request being
+	the last that we will issue in this sequence. The point is that hardware
+	can defer costly doorbell type writes to the last request. But if we run
+	into errors issuing a sequence of requests, we may never send the request
+	with bd->last == true set. For that case, we need a hook that tells the
+	hardware that nothing else is coming right now.
+	
+	For failures returned by the drivers ->queue_rq() hook, the driver is
+	responsible for flushing pending requests, if it uses bd->last to
+	optimize that part. This works like before, no changes there.
+
+4. 在blk_mq_make_request函数中加入commit_rqs的逻辑
+    b2c5d16b72df
+    blk-mq: use plug for devices that implement ->commits_rqs()
+	If we have that hook, we know the driver handles bd->last == true in
+	a smart fashion. If it does, even for multiple hardware queues, it's
+	a good idea to flush batches of requests to the device, if we have
+	batches of requests from the submitter.
+
+5. 5b3f341f098d60da2970758db6a05bd851eb6b39
+    blk-mq: make plug work for mutiple disks and queues
+
+6. 增加了递归中对不同request_queue的bio处理(这个先不分析了)
+    79bd99596b7305ab08109a8bf44a6a4511dbf1cd
+    blk: improve order of bio handling in generic_make_request()
+
+	To avoid recursion on the kernel stack when stacked block devices
+    are in use, generic_make_request() will, when called recursively,
+    queue new requests for later handling.  They will be handled when the
+    make_request_fn for the current bio completes.
+
+    If any bios are submitted by a make_request_fn, these will ultimately
+    be handled seqeuntially.  If the handling of one of those generates
+    further requests, they will be added to the end of the queue.
+
+    This strict first-in-first-out behaviour can lead to deadlocks in
+    various ways, normally because a request might need to wait for a
+    previous request to the same device to complete.  This can happen when
+    they share a mempool, and can happen due to interdependencies
+    particular to the device.  Both md and dm have examples where this happens.
+
+    These deadlocks can be erradicated by more selective ordering of bios.
+    Specifically by handling them in depth-first order.  That is: when the
+    handling of one bio generates one or more further bios, they are
+    handled immediately after the parent, before any siblings of the
+    parent.  That way, when generic_make_request() calls make_request_fn
+    for some particular device, we can be certain that all previously
+    submited requests for that device have been completely handled and are
+    not waiting for anything in the queue of requests maintained in
+    generic_make_request().
+
+    An easy way to achieve this would be to use a last-in-first-out stack
+    instead of a queue.  However this will change the order of consecutive
+    bios submitted by a make_request_fn, which could have unexpected consequences.
+    Instead we take a slightly more complex approach.
+    A fresh queue is created for each call to a make_request_fn.  After it completes,
+    any bios for a different device are placed on the front of the main queue, followed
+    by any bios for the same device, followed by all bios that were already on
+    the queue before the make_request_fn was called.
+    This provides the depth-first approach without reordering bios on the same level.
+
+    This, by itself, it not enough to remove all deadlocks.  It just makes
+    it possible for drivers to take the extra step required themselves.
+
+    To avoid deadlocks, drivers must never risk waiting for a request
+    after submitting one to generic_make_request.  This includes never
+    allocing from a mempool twice in the one call to a make_request_fn.
+
+    A common pattern in drivers is to call bio_split() in a loop, handling
+    the first part and then looping around to possibly split the next part.
+    Instead, a driver that finds it needs to split a bio should queue
+    (with generic_make_request) the second part, handle the first part,
+    and then return.  The new code in generic_make_request will ensure the
+    requests to underlying bios are processed first, then the second bio
+    that was split off.  If it splits again, the same process happens.  In
+    each case one bio will be completely handled before the next one is attempted.
+
+    With this is place, it should be possible to disable the
+    punt_bios_to_recover() recovery thread for many block devices, and
+    eventually it may be possible to remove it completely.
+

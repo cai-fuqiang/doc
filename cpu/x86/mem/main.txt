@@ -1,0 +1,8 @@
+memblock:
+    是从bios里面来的
+
+dmesg
+
+/sys/kernel/debug/memblock/memory
+
+2) FLAT memory model

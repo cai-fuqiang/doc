@@ -1,0 +1,14 @@
+1) 替换qemu-kvm生效    
+kubectl get pod -o wide -n openstack | grep libvirt
+kubectl cp qemu-kvm -n openstack libvirtxxxxx:/qemu-kvm
+kubectl exec -ti -n openstack libvirtxxx bash
+
+2）删除pod
+kubectl delete pod libvirtxxxxx -n openstack
+
+3) 查看容器
+kubectl get pod -nopenstack -owide | grep vol
+kubectl exec -it  -nopenstack cinder-volume-c6d8846b4-6q527 bash
+
+4) uuid
+kubectl get pods cinder-volume-c6d8846b4-vwbqb  -n openstack -o template --template='{{range .status.containerStatuses}}{{.containerID}}{{end}}'

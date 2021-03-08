@@ -1,0 +1,1 @@
+vm-exit 发生在响应在non-root模式下的某些指令

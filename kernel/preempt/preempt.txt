@@ -1,0 +1,7 @@
+内核抢占模式设置
+PREEMPT_NONE
+PREEMPT_VOLUNTARY
+PREEMPT
+1. PREEMPT_NONE---------CONFIG_PREEMPT和CONFIG_PREEMPT_VOLUNTARY都不会设置，表示在内核态既不会被抢占，调might_resched()函数也不会主动切换
+2. Low latency desktop----只配置CONFIG_PREEMPT_VOLUNTARY,might_resched()函数生效，内核态依然不会被抢占
+3. PREEMPT------------------CONFIG_PREEMPT和CONFIG_PREEMPT_VOLUNTARY同时生效，在中断返回内核态时会检查TIF_NEEDRESCHED标志，如果需要调度，则会调schedule，内核态被抢占

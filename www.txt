@@ -1,0 +1,24 @@
+1. centos官方资源网站
+http://vault.centos.org/
+
+2. dns域名查询
+https://www.ping.cn/dns/vault.centos.org
+
+3. redhat资源下载网站
+    1) 红帽8.3 x86
+        https://access.redhat.com/downloads/content/479/ver=/rhel---8/8.3/x86_64/packages
+
+4. 周报填写地址:
+https://gitlab.com/EasyStack/kernel-team/-/blob/master/weekly-report/2020.md
+
+5. DELL服务器电源问题:
+https://dl.dell.com/topicspdf/troubleshootingguide_zh-cn.pdf
+
+6. 奔跑吧Linux内核资源
+https://book.douban.com/review/12488454/
+
+7. block相关链接
+$(pwd)/kernel/block/www.txt
+
+8. openEuler资源监控 Feature
+https://gitee.com/openeuler/community/tree/master/sig/Kernel#%E8%B5%84%E6%BA%90%E7%AE%A1%E6%8E%A7

@@ -1,0 +1,8 @@
+1. vmresume:
+    这个指令恢复由VMCS管理的虚拟机, 当一个vm entry发生时， 将控制权转交给虚拟机
+2. vmlanuch:
+    这个指令用于启动由VMCS管理的虚拟机。
+    
+    ps: 以上两个指令的区别时，vmlanuch用于第一次进入该GUEST，vmresume用于后续的进入
+
+3. 

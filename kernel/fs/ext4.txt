@@ -1,0 +1,2 @@
+查看filesystem的extent属性
+sudo dumpe2fs -h /dev/nvme0n1p2 | grep extent

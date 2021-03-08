@@ -1,0 +1,46 @@
+x86_emulate_instruction()
+    if (!(emulation_type & EMULTYPE_NO_DECODE))
+        //初始化ctxt一些部分
+        init_emulate_ctxt
+            ctxt->eflags=kvm_get_rflags
+            ctxt->tf = (ctxt->eflags & X86_EFLAGS_TF) != 0;
+            ctxt->eip = kvm_rip_read
+            ctxt->mode = 这里只考虑(X86EMUL_MODE_PROT64)
+            init_decode_cache
+            
+        //初始化ctxt其他部分
+        ctxt->interruptibility = 0;
+        ctxt->have_exception = false;
+        ctxt->exception.vector = -1;
+        ctxt->perm_ok = false;
+        
+        //对指令进行解码
+        x86_decode_insn
+
+x86_decode_insn
+    //5120~5126在处理一歇和指令获取相关的内容
+    ctxt->memop.type = OP_NONE;
+    ctxt->memopp = NULL;
+    ctxt->_eip = ctxt->eip;
+    ctxt->fetch.ptr = ctxt->fetch.data;
+    ctxt->fetch.end = ctxt->fetch.data + insn_len;
+    ctxt->opcode_len = 1;
+    
+    if(insn_len <= 0)               //apic_access走的就是这套流程
+        __do_insn_fetch_bytes()     //从上下文取指令
+        /* 从函数的传参来看，函数的入参是传入了max_size和linear
+         * 该函数会计算这两个值，用来尽可能的增加取指令的大小
+         * 但是需要注意的是:
+         * 1）避免超过15个字节
+         * 2）不要超过segment限制
+         * 3）不要超过该页的范围
+         * 但是该函数主要保证上面的提到的segment限制
+         * 不要超过segment限制
+         */
+        rc = __linearize(ctxt, addr, &max_size, 0, false, true, ctxt->mode,
+                        &linear);
+        //保证不超过15UL大小,也就是15个字节的大小,注意这里指的是整个指令的
+        //的长度, ^的操作相当于（不知道啥）
+        size = min_t(unsigned, 15UL ^ cur_size, max_size);
+        //这个是为了防止预取的量不要超过一页的大小
+        size = min_t(unsigned, size, PAGE_SIZE - offset_in_page(linear)); 

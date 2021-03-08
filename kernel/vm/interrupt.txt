@@ -1,0 +1,69 @@
+外部中断虚拟化:
+芯片手册24.6.1:
+External-interrupt exiting: 如果该标记位为1，则表示外部中断可以造成VM exit.否则，这些中断将会通过guest中的IDT表去递送中断,所以如果标记位为1，
+                            RFLAGS.IF则不会生效
+
+1) 初始化vmcs_config
+module_init(vmx_init)
+    kvm_init
+        kvm_arch_hardware_setup
+            kvm_x86_ops->hardware_setup()
+            ==hardware_setup[intel]
+                setup_vmcs_config   //在这里面初始化vmcs_config
+setup_vmcs_config
+这块代码的逻辑是:
+列出了KVM可能用到的VMCS的配置项，
+其中有一些是可能用到的，有一些是必然用到的。
+然后通过读vm config的MSR去获取该CPU对VMCS配置域中的支持情况，
+然后在进行比对，如果支持不了KVM必然用到的项就返回错误
+如果支持不了可能用到的项，也没有办法
+
+所以该函数主要是为了得到vmcs_config结构体，
+该结构体描述了目前的CPU对于KVM所需功能的支持情况
+
+2) 创建apic
+
+3) 创建lapic:
+kvm_vm_ioctl
+    case KVM_CREATE_VCPU:
+    kvm_vm_ioctl_create_vcpu
+        kvm_vcpu_init
+        kvm_arch_vcpu_create
+            kvm_create_lapic
+                //分配一页内存，用于
+                apic->regs = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
+    kvm_arch_vcpu_setup
+        kvm_vcpu_reset
+            kvm_x86_ops->vcpu_reset(vcpu, init_event)
+            -->vmx_vcpu_reset
+                vmcs_write64(VIRTUAL_APIC_PAGE_ADDR,
+                     __pa(vcpu->arch.apic->regs));  //在这里往APIC_PAGE_ADDR中写apic的物理地址
+    
+3) 中断路由表的初始化
+
+E).附录:
+E.1) vmcs中关于config的内容
+E.1.1) pin_based_exec_control
+MSR_IA32_VMX_PINBASED_CTLS:
+reports on the allowed settings of most of 
+the pin-based VM-execution controls
+
+MSR_IA32_VMX_PROCBASED_CTLS
+reports on the allowed settings of most of 
+the primary processor-based VM-execution controls
+
+ps:
+1) 需要关注的函数
+1.1) adjust_vmx_controls
+函数原型
+int adjust_vmx_controls(u32 ctl_min, u32 ctl_opt,
+                        u32 msr, u32 *result)
+这个函数的逻辑是
+获取VMX_CTLS MSR的值，
+这些MSR一般是这样描述其功能
+    --高32位为1，表示控制域中必须为0
+    --低32位为1，表示控制域中必须为1
+该函数的逻辑是:
+必须
+必须支持ctl_min，否则就返回错误 最大程度支持ctl_opt, 
+如果MSR不支持也没有办法 

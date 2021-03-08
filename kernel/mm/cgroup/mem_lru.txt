@@ -1,0 +1,58 @@
+struct lruvec {
+    ...
+    struct list_head lists[NR_LRU_LISTS];
+    ...
+};
+
+enum{
+    LRU_INACTIVE_ANON = LRU_BASE,
+    LRU_ACTIVE_ANON = LRU_BASE + LRU_ACTIVE,
+    LRU_INACTIVE_FILE = LRU_BASE + LRU_FILE,
+    LRU_ACTIVE_FILE = LRU_BASE + LRU_FILE + LRU_ACTIVE,
+    LRU_UNEVICTABLE,
+    NR_LRU_LISTS
+};
+
+1) 可以存放到swap上,并且没有被锁在内存中，被称为匿名lru链表
+* LRU_INACTIVE_ANON : 称为非活动匿名页lru链表，
+                      此链表中保存的是此zone中
+                      所有最近没被访问过的并且
+                      可以存放到swap分区的页描述符，
+                      在此链表中的页描述符的PG_active标志为0。
+* LRU_ACTIVE_ANON   : 称为活动匿名页lru链表，此链表中保存的是
+                      此zone中所有最近被访问过的并且可以存
+                      放到swap分区的页描述符，此链表中的页描述
+                      符的PG_active标志为1。
+
+2) 映射了具体磁盘文件页并且没有被锁在内存中的页(映射了内核映像的页除外) 
+   被称为文件页lru链表
+* LRU_INACTIVE_FILE : 称为非活动文件页lru链表，
+                      此链表中保存的是此zone中所有最近没被访问
+                      过的文件页的页描述符，此链表中的页描述符
+                      的PG_active标志为0。
+* LRU_ACTIVE_FILE   : 称为活动文件页lru链表，此链表中保存的是此
+                      zone中所有最近被访问过的文件页的页描述符，
+                      此链表中的页描述符的PG_active标志为1。
+
+3) 而对于此zone中那些锁在内存中的页，使用下面链表
+* LRU_UNEVICTABLE   : 此链表中保存的是此zone中所有
+                      禁止换出的页的描述符。
+
+该链表和page结构体中的下面的数据结构相连
+struct  page {
+    /* 用于页描述符，一组标志(如PG_locked、PG_error)，同时页框所在的管理区和node的编号也保存在当中 */
+    /* 在lru算法中主要用到的标志
+     * PG_active: 表示此页当前是否活跃，当放到或者准备放到活动lru链表时，被置位
+     * PG_referenced: 表示此页最近是否被访问，每次页面访问都会被置位
+     * PG_lru: 表示此页是处于lru链表中的
+     * PG_mlocked: 表示此页被mlock()锁在内存中，禁止换出和释放
+     * PG_swapbacked: 表示此页依靠swap，可能是进程的匿名页(堆、栈、数据段)，匿名mmap共享内存映射
+    int flags;
+    /* page cache and anonymous pages */
+    union {
+        struct {
+            struct list_head lru;
+        };
+    };
+};
+

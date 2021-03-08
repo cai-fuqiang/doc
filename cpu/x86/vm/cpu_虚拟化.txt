@@ -1,0 +1,46 @@
+x86:
+1) vmx:
+VMM : KVM
+VM : 虚拟机
+
+2) cpu 模式
+VM Entry : root -> no-root
+VM Exit : no-root -> root(执行一些特权指令，或者是发生中断或者异常)
+
+3) VMCS
+3.1) 访问
+如果访问的话，只有通过intel提供的指令
+
+3.2) DISCOVERING SUPPORT FOR VMX
+该位决定目前CPU是否可以支持VMCS，开机只能设置一次
+
+3.2) VMCS 相关指令
+有13个指令用于操作VMCS
+
+VMLAUCH: 虚拟机第一次运行 进入GUEST
+VMRESUME: 虚拟机第二次进入
+VMPTRLD: load vmcs 结构体
+VMPTRST: 
+VMREAD: 从vmcs结构体中读成员
+VMWRITE: 写vmcs结构体
+VMXOFF: 关闭vmx功能
+VMXON: 打开vmx功能
+
+3.3) 使能vmcs
+
+
+
+3.4) vmcs构成
+Guest-state area :
+host-state area :
+VM-execution control fields :
+VM-exit control fieleds :
+VM-entry control fields :
+VM-exit information fields :
+
+3.5) kvm_vmx_exit_handlers[] : 记录了VM-exit 原因，和处理方法
+
+4) 
+hyperalcall.txt
+
+5) 异步page fault
