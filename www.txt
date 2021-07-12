@@ -22,3 +22,9 @@ $(pwd)/kernel/block/www.txt
 
 8. openEuler资源监控 Feature
 https://gitee.com/openeuler/community/tree/master/sig/Kernel#%E8%B5%84%E6%BA%90%E7%AE%A1%E6%8E%A7
+
+9. 清华大学centos网站
+https://mirror.tuna.tsinghua.edu.cn/centos/
+https://mirror.tuna.tsinghua.edu.cn/centos-vault/
+http://debuginfo.centos.org
+10. 
