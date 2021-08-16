@@ -12,3 +12,7 @@ kubectl exec -it  -nopenstack cinder-volume-c6d8846b4-6q527 bash
 
 4) uuid
 kubectl get pods cinder-volume-c6d8846b4-vwbqb  -n openstack -o template --template='{{range .status.containerStatuses}}{{.containerID}}{{end}}'
+
+5) 替换云产品镜像
+kubectl exec -it -nopenstack coaster-all-0 -c coaster-other bash
+/var/www/roller/cloud_product_image

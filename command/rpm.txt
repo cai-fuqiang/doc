@@ -1,2 +1,6 @@
 1. rpm包解压
     rpm2cpio kernel-4.18.0-147.el8.src.rpm |cpio -div
+
+2. chroot 环境安装
+
+yum --disablerepo roller -c 8.repo --installroot=/root/wangfuqiang/build install bash yum
