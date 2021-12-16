@@ -27,4 +27,6 @@ https://gitee.com/openeuler/community/tree/master/sig/Kernel#%E8%B5%84%E6%BA%90%
 https://mirror.tuna.tsinghua.edu.cn/centos/
 https://mirror.tuna.tsinghua.edu.cn/centos-vault/
 http://debuginfo.centos.org
-10. 
+
+10. uefi(ACPI) 规范
+https://uefi.org/specifications
