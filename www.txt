@@ -30,3 +30,7 @@ http://debuginfo.centos.org
 
 10. uefi(ACPI) 规范
 https://uefi.org/specifications
+
+
+11. pe格式文档
+https://docs.microsoft.com/en-us/windows/win32/debug/pe-format
