@@ -1,0 +1,12 @@
+于宸 5-11 16:15:58
+scl enable devtoolset-8 bash
+/usr/bin/stap -DSTP_NO_BUILDID_CHECK -g -v -p4 pt.stp
+/usr/bin/staprun /root/.systemtap/cache/7d/stap_7d7bdd7b42f58d8af7cffa6f05e5e747_231306.ko
+
+[root@node-2 yc]# /usr/bin/stap --version
+Systemtap translator/driver (version 4.1/0.176, rpm 4.1-6.el7.centos.es)
+Copyright (C) 2005-2019 Red Hat, Inc. and others
+This is free software; see the source for copying conditions.
+tested kernel versions: 2.6.18 ... 5.1-rc2
+enabled features: AVAHI JAVA PYTHON2 LIBRPM LIBSQLITE3 NLS NSS READLINE
+[root@node-2 yc]#
