@@ -37,3 +37,6 @@ https://docs.microsoft.com/en-us/windows/win32/debug/pe-format
 
 12. cloud img
 http://mirrors.ustc.edu.cn/centos-cloud/
+
+13. centos rpm-key
+https://www.centos.org/keys/
