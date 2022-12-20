@@ -1,0 +1,19 @@
+提供下git send-email 命令用公司email提交patch的方法, 好处是能直接从命令行提交patch, 我也可以直接拿mail内容git am代码
+
+设置~/.gitconfig
+加上这些，改成自己的
+
+[user]
+        name = Ken Kuo
+        email = ken.kuo@easystack.cn
+[sendemail]
+        smtpserver = smtp.qiye.163.com
+        smtpencryption = ssl
+        smtpserverport = 994
+        smtpuser = ken.kuo@easystack.cn 
+例如寄给于宸和cc engineering
+
+ git send-email --smtp-debug=1 --thread --compose --suppress-from --suppress-cc=all --to="Yu Chen <chen.yu@easystack.cn>" --cc="system-engineering@easystack.cn" <patches>
+注意
+
+* --suppress-from --suppress-cc=all要加上，不然会寄给社群那些人，很尴尬，可以先寄自己邮箱试试

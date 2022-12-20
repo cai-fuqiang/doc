@@ -52,3 +52,7 @@ git status
 
 9. git根据commit生成patch
 git format-patch -1 commit 
+
+10. https://stackoverflow.com/questions/42287533/restore-deleted-file-with-history-in-git/42287548#42287548
+git log --all --stat --diff-filter=D -- test.log
+git restore --source aec723390^ test.log
